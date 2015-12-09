@@ -1,0 +1,24 @@
+<channel
+   name="CalREDIE Lab Reporting"
+   guid="0B984C5E91DCC3F1619BC829FC21534C"
+   description="This example channel shows how you can do the SOAP call required for the CalREDIE - Californian Lab Reporting Interface.&#xD;&#xA;&#xD;&#xA;For more information see:&#xD;&#xA;&#xD;&#xA;http://help.interfaceware.com/kb/connecting-with-calredie"
+   start_automatically="true"
+   logging_level="1"
+   use_message_filter="false">
+   <to_mapper
+      guid="CalREDIE_Lab_Reporting-To-hyNH0kkiq22q9m"
+      commit_id="b5fa9dc9f3d58d2ab05a2f766fae9c308528504d"
+      commit_comment="First commit">
+      <dequeue_list>
+         <dequeue
+            source_guid="00000000000000000000000000000000"
+            dequeue_guid="911489D722F9777E4D7A615D7175DB1A"/>
+      </dequeue_list>
+   </to_mapper>
+   <from_mapper
+      guid="CalREDIE_Lab_Reporting-From-6d0QWqgaUPbeyS"
+      commit_id="3def7304c06c616b93bfd530776d70baa8f7ab52"
+      commit_comment="First commit"
+      poll_time="10000">
+   </from_mapper>
+</channel>

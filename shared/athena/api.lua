@@ -57,6 +57,10 @@ end
 -- @calltype : the type of AJAX call being made (get, post, put, or delete)
 ----------------------------------------------------------------------------------
 local function checkCache(Api, P, calltype) 
+   if not iguana.isTest() then
+      -- no caching when running in production
+      return api.call(Api, P, calltype)
+   end
    local Time = os.ts.time()
    local Key = json.serialize{data=P, compact=true}:gsub('["{}:,%]\[]', "")
    if store.get(Key..'_time') and calltype == 'read'

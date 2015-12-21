@@ -1,0 +1,18 @@
+{
+    "LocalDependencies": [
+        "config.lua"
+    ],
+    "LuaDependencies": [
+        "athena.api",
+        "athena.athena_source",
+        "athena.token",
+        "store"
+    ],
+    "OtherDependencies": [],
+    "timestamp": "1450717023",
+    "version_info": {
+        "build": 0,
+        "major": 6,
+        "minor": 0
+    }
+}

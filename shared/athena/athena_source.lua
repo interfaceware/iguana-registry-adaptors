@@ -1,4 +1,4 @@
-AthenaSource = [[{
+local AthenaSource = [[{
    "auth" : {
       "oauth" : {
          "access_token_location" : "header",
@@ -19901,3 +19901,4 @@ AthenaSource = [[{
    "version" : "/preview1"
 }
 ]]
+return AthenaSource;

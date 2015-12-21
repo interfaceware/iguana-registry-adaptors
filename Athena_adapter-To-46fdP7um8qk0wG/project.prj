@@ -5,11 +5,10 @@
     "LuaDependencies": [
         "athena.api",
         "athena.athena_source",
-        "athena.token",
         "store"
     ],
     "OtherDependencies": [],
-    "timestamp": "1450717023",
+    "timestamp": "1450721757",
     "version_info": {
         "build": 0,
         "major": 6,

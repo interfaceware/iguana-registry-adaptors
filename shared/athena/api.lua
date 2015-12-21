@@ -2,13 +2,197 @@
 -- This file includes the athena.connect function as well as the 4 types of 
 -- api calls used for athena health
 ----------------------------------------------------------------------------------
-require 'athena.token'
-require 'athena.athena_source'
+local AthenaSource = require 'athena.athena_source'
 store = require 'store'
 athena = {}
 token = {}
 api = {}
-Url = { root = 'https://api.athenahealth.com/', repository = 'preview1/', tokenPath = 'oauthpreview/token' }
+local Url = { root = 'https://api.athenahealth.com/', repository = 'preview1/', tokenPath = 'oauthpreview/token' }
+
+
+local function CheckClearCache(DoClear)
+   if DoClear then
+      store.resetTableState()
+   end
+end
+
+local function GetAccessTokenViaHTTP(CacheKey, Parameters)
+   trace(Parameters, Url)
+   local J = net.http.post{url=Url.root..Url.tokenPath, auth=Parameters.auth,
+      live=true, parameters= {grant_type = 'client_credentials'} }
+   store.put(CacheKey, J)
+   store.put(CacheKey..'_time', os.ts.time())
+   return json.parse{data=J}
+end
+
+local function CheckTokenValid(CacheKey, T)
+   local Time = store.get(CacheKey..'_time')
+   local CacheData = store.get(CacheKey)
+   CacheData = json.parse{data = CacheData}
+   trace(os.ts.difftime(os.ts.time(), Time))
+   if os.ts.difftime(os.ts.time(), Time) > CacheData.expires_in then
+      CheckClearCache(true)
+      GetAccessTokenViaHTTP(CacheKey, T)
+   end
+end
+
+local function GetAccessTokenCached(CacheKey, T)
+   local S = store.get(CacheKey)
+   if(S) then
+      CheckTokenValid(CacheKey, T)
+      return json.parse{data=S}
+   else 
+      return nil
+   end
+end
+
+----------------------------------------------------------------------------------
+-- This function checks if there has been a call recently made to this get function
+-- in order to save time.
+-- @params Data: the Api being called
+-- @params P: Parameters necessary for the api call
+   -- 2 sub tables : web, body
+   -- web : parameter substitutes for api path variables
+   -- body : paramters added to end of path
+-- @calltype : the type of AJAX call being made (get, post, put, or delete)
+----------------------------------------------------------------------------------
+local function checkCache(Api, P, calltype) 
+   local Time = os.ts.time()
+   local Key = json.serialize{data=P}
+   if store.get(Key..'_time') and calltype == 'read'
+      and Time - store.get(Key .. '_time') < 400000 then
+      return store.get(Key)
+   end
+   return api.call(Api, P, calltype)
+end
+
+local function ApiCall(UserParams, Data, typeof)
+   local ExpectedParams = Data.parameters
+   trace(UserParams, ExpectedParams, typeof)
+   local Params = {path = {}, web = {}}
+   for K, V in pairs(ExpectedParams) do
+      if(K ~= 'Authorization' or K ~= 'Content-Type') then
+         if V.location ~= 'pathReplace' then 
+            Params.web[K] = UserParams[K]
+         elseif V.location == 'pathReplace' then
+            local Key = string.sub(K, 2, string.len(K))
+            Params.path[K] = UserParams[Key]
+         end
+      end
+   end
+   return checkCache(Data.path, Params, typeof)
+end
+
+local function handleErrors(Response, Err, Header, Extras)
+   trace(Response)
+   if Err ~= 200 then -- For all responses other thsn 200 OK
+      if Err == 401 then
+         --error("Token Invalid")
+         
+         token = GetAccessTokenViaHTTP('access_data', {auth = {username= config.username, password = config.password}})
+         trace(token)
+         return api.call(Extras.api, Extras.P, Extras.typeof)
+      elseif Err == 400 then     
+         local Response = json.parse{data=Response}     
+         error('API response error: ' .. Err .. ' ( ' .. Response.error .. ' ) returned for query call.', 6)  
+         return
+      else 
+         local Response = json.parse{data=Response}
+         error('API response error: ' .. Err .. ' ( ' .. Response.error .. ' '..Response.detailedmessage..' ) returned for query call.', 6)  
+         return
+      end
+   else
+      -- return data from successful 200 OK response
+      if Response ~= '' then
+         return json.parse{data=Response}
+      end       
+   end
+end
+
+local function MakeParamsArray(Params)
+   local i = 0
+   local Result = {}
+   for Key, V in pairs(Params.parameters) do 
+      if(string.sub(Key, 0, 1) == ':') then
+         Key = string.sub(Key, 2, string.len(Key))
+      end
+      if Key ~= 'Authorization' and K~= 'Content-Type' then
+         trace(Key)
+         Result[i] = {}
+         Result[i][Key] = {}
+         Result[i][Key].Opt = not V.required
+         Result[i][Key].Desc = V.description
+         if(V.type) then
+            Result[i][Key].Desc = Result[i][Key].Desc..' ('..V.type..')'
+         end
+         i = i + 1
+      end   
+   end
+   return Result
+end   
+
+local function translateToCrud(def)
+   if     def == 'GET'  then  return 'read'
+   elseif def == 'POST' then  return 'add'
+   elseif def == 'PUT'  then  return 'update'
+   end
+   return 'delete'
+end
+
+local function MakeHelp(Table, func)
+   trace(Table)
+   local HelpInfo = {}
+   HelpInfo.Desc = Table.description
+   HelpInfo.ParameterTable = true
+   HelpInfo.Parameters = MakeParamsArray(Table)
+   HelpInfo.Title = "Api: "..Table.path
+   help.set{input_function=func, help_data=HelpInfo}
+end
+
+local function makeObj(Data, a, Index)
+   local Path = Data.path
+   local typeof = translateToCrud(Data.httpMethod)
+   local Table = string.split(Path, '/')
+   local subStr = string.sub(Table[Index], 0, 1)
+   if(subStr == ':') then
+      Table[Index] = string.sub(Table[Index], 2, string.len(Table[Index]))
+   end
+   if Index == #Table then
+      trace(a[Table[Index]])
+      if not a[Table[Index]] then 
+         a[Table[Index]] = {[typeof] = function(P) return ApiCall(P, Data ,typeof) end}
+         MakeHelp(Data, a[Table[Index]][typeof])
+      else
+         a[Table[Index]][typeof] = function(P) return  ApiCall(P, Data ,typeof) end
+         MakeHelp(Data, a[Table[Index]][typeof])
+      end
+   elseif not a[Table[Index]] then
+      a[Table[Index]] = {}
+      makeObj(Data, a[Table[Index]], Index + 1)
+   elseif a[Table[Index]] then
+      makeObj(Data, a[Table[Index]], Index + 1)
+   end   
+end
+
+local function init()
+   local ApiData = json.parse{data=AthenaSource}
+   trace(ApiData)
+   local a,i  = {}, 0
+   for K,V in pairs(ApiData.resources) do
+      local Subsection = string.split(K, '/')
+      Subsection = string.split(Subsection[1], ' ')
+      Subsection = string.lower(Subsection[1])
+      if not a[Subsection] then a[Subsection] = {} end
+      for Method in pairs(V.methods) do
+         makeObj(ApiData.resources[K].methods[Method], a[Subsection], 4)
+      end 
+   end
+   trace(a)
+   return a
+end
+
+
+
 ----------------------------------------------------------------------------------
 -- Used to connected to Athena Help based on client key and client secret
 -- Tries to find a cached token, if not will make an ajax call to get a new one
@@ -89,7 +273,7 @@ end
 -- @params params: a table of web variables ot their values to be substituted into
 -- the url
 ----------------------------------------------------------------------------------
-function createUrl(params, api)
+local function createUrl(params, api)
    local Result = ''
    for K, V in pairs(params) do
       trace(K, V)
@@ -123,149 +307,3 @@ function api.call(Api, params, calltype)
    Result, E, Header = api[calltype](Api, params)
    return handleErrors(Result, E, Header, {api = Api, P = params, typeof = calltype})
 end
-
-----------------------------------------------------------------------------------
--- This function checks if there has been a call recently made to this get function
--- in order to save time.
--- @params Data: the Api being called
--- @params P: Parameters necessary for the api call
-   -- 2 sub tables : web, body
-   -- web : parameter substitutes for api path variables
-   -- body : paramters added to end of path
--- @calltype : the type of AJAX call being made (get, post, put, or delete)
-----------------------------------------------------------------------------------
-function checkCache(Api, P, calltype) 
-   local Time = os.ts.time()
-   local Key = json.serialize{data=P}
-   if store.get(Key..'_time') and calltype == 'read'
-      and Time - store.get(Key .. '_time') < 400000 then
-      return store.get(Key)
-   end
-   return api.call(Api, P, calltype)
-end
-
-function ApiCall(UserParams, Data, typeof)
-   local ExpectedParams = Data.parameters
-   trace(UserParams, ExpectedParams, typeof)
-   local Params = {path = {}, web = {}}
-   for K, V in pairs(ExpectedParams) do
-      if(K ~= 'Authorization' or K ~= 'Content-Type') then
-         if V.location ~= 'pathReplace' then 
-            Params.web[K] = UserParams[K]
-         elseif V.location == 'pathReplace' then
-            local Key = string.sub(K, 2, string.len(K))
-            Params.path[K] = UserParams[Key]
-         end
-      end
-   end
-   return checkCache(Data.path, Params, typeof)
-end
-
-function handleErrors(Response, Err, Header, Extras)
-   trace(Response)
-   if Err ~= 200 then -- For all responses other thsn 200 OK
-      if Err == 401 then
-         --error("Token Invalid")
-         
-         token = GetAccessTokenViaHTTP('access_data', {auth = {username= config.username, password = config.password}})
-         trace(token)
-         return api.call(Extras.api, Extras.P, Extras.typeof)
-      elseif Err == 400 then     
-         local Response = json.parse{data=Response}     
-         error('API response error: ' .. Err .. ' ( ' .. Response.error .. ' ) returned for query call.', 6)  
-         return
-      else 
-         local Response = json.parse{data=Response}
-         error('API response error: ' .. Err .. ' ( ' .. Response.error .. ' '..Response.detailedmessage..' ) returned for query call.', 6)  
-         return
-      end
-   else
-      -- return data from successful 200 OK response
-      if Response ~= '' then
-         return json.parse{data=Response}
-      end       
-   end
-end
-
-function MakeParamsArray(Params)
-   local i = 0
-   local Result = {}
-   for Key, V in pairs(Params.parameters) do 
-      if(string.sub(Key, 0, 1) == ':') then
-         Key = string.sub(Key, 2, string.len(Key))
-      end
-      if Key ~= 'Authorization' and K~= 'Content-Type' then
-         trace(Key)
-         Result[i] = {}
-         Result[i][Key] = {}
-         Result[i][Key].Opt = not V.required
-         Result[i][Key].Desc = V.description
-         if(V.type) then
-            Result[i][Key].Desc = Result[i][Key].Desc..' ('..V.type..')'
-         end
-         i = i + 1
-      end   
-   end
-   return Result
-end   
-
-function translateToCrud(def)
-   if     def == 'GET'  then  return 'read'
-   elseif def == 'POST' then  return 'add'
-   elseif def == 'PUT'  then  return 'update'
-   end
-   return 'delete'
-end
-
-function MakeHelp(Table, func)
-   trace(Table)
-   local HelpInfo = {}
-   HelpInfo.Desc = Table.description
-   HelpInfo.ParameterTable = true
-   HelpInfo.Parameters = MakeParamsArray(Table)
-   HelpInfo.Title = "Api: "..Table.path
-   help.set{input_function=func, help_data=HelpInfo}
-end
-
-function makeObj(Data, a, Index)
-   local Path = Data.path
-   local typeof = translateToCrud(Data.httpMethod)
-   local Table = string.split(Path, '/')
-   local subStr = string.sub(Table[Index], 0, 1)
-   if(subStr == ':') then
-      Table[Index] = string.sub(Table[Index], 2, string.len(Table[Index]))
-   end
-   if Index == #Table then
-      trace(a[Table[Index]])
-      if not a[Table[Index]] then 
-         a[Table[Index]] = {[typeof] = function(P) return ApiCall(P, Data ,typeof) end}
-         MakeHelp(Data, a[Table[Index]][typeof])
-      else
-         a[Table[Index]][typeof] = function(P) return  ApiCall(P, Data ,typeof) end
-         MakeHelp(Data, a[Table[Index]][typeof])
-      end
-   elseif not a[Table[Index]] then
-      a[Table[Index]] = {}
-      makeObj(Data, a[Table[Index]], Index + 1)
-   elseif a[Table[Index]] then
-      makeObj(Data, a[Table[Index]], Index + 1)
-   end   
-end
-
-function init()
-   ApiData = json.parse{data=AthenaSource}
-   trace(ApiData)
-   local a,i  = {}, 0
-   for K,V in pairs(ApiData.resources) do
-      local Subsection = string.split(K, '/')
-      Subsection = string.split(Subsection[1], ' ')
-      Subsection = string.lower(Subsection[1])
-      if not a[Subsection] then a[Subsection] = {} end
-      for Method in pairs(V.methods) do
-         makeObj(ApiData.resources[K].methods[Method], a[Subsection], 4)
-      end 
-   end
-   trace(a)
-   return a
-end
-

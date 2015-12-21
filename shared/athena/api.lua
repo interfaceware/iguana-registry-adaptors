@@ -58,12 +58,17 @@ end
 ----------------------------------------------------------------------------------
 local function checkCache(Api, P, calltype) 
    local Time = os.ts.time()
-   local Key = json.serialize{data=P}
+   local Key = json.serialize{data=P, compact=true}:gsub('["{}:,%]\[]', "")
    if store.get(Key..'_time') and calltype == 'read'
       and Time - store.get(Key .. '_time') < 400000 then
-      return store.get(Key)
+      return json.parse{data=store.get(Key)}
    end
-   return api.call(Api, P, calltype)
+   local R = api.call(Api, P, calltype)
+   if iguana.isTest() and calltype=='read' then
+      store.put(Key, json.serialize{data=R})
+      store.put(Key.."_time", os.ts.time())
+   end
+   return R
 end
 
 local function ApiCall(UserParams, Data, typeof)

@@ -7,8 +7,8 @@
    use_message_filter="false">
    <to_mapper
       guid="Athena_adapter-To-46fdP7um8qk0wG"
-      commit_id="28fbd36df5d4264464e151ae94aee528cdd9c21e"
-      commit_comment="Went through methodically and reduced the number of global functions and variables created by the Athena adapter.  It&apos;s better practice.">
+      commit_id="4fc478baea238b1bf2a1aafb6c40bad99f30ea3b"
+      commit_comment="Got the caching working correctly for reads.">
       <dequeue_list>
          <dequeue
             source_guid="00000000000000000000000000000000"

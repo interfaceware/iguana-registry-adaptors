@@ -1,7 +1,7 @@
 <channel
    name="Athena adapter"
    guid="3BF3DBFEEF5611259F3A19975039C93F"
-   description="This channel shows an example Athena Health web service adapter.&#xD;&#xA;&#xD;&#xA;"
+   description="This channel shows an example Athena Health web service adapter:&#xD;&#xA;&#xD;&#xA;http://help.interfaceware.com/forums/topic/athena-health-web-adapter&#xD;&#xA;&#xD;&#xA;"
    start_automatically="true"
    logging_level="1"
    use_message_filter="false">

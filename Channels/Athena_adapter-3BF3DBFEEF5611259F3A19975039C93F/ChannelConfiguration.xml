@@ -7,8 +7,8 @@
    use_message_filter="false">
    <to_mapper
       guid="Athena_adapter-To-46fdP7um8qk0wG"
-      commit_id="54a3ead069c7f7728f98fea94f142e12c75d2521"
-      commit_comment="Turned off caching when run in production.">
+      commit_id="afbb9d22d42bd4511fcd5622e31c58dc6db1aa17"
+      commit_comment="Remove store module.">
       <dequeue_list>
          <dequeue
             source_guid="00000000000000000000000000000000"

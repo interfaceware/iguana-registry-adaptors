@@ -1,0 +1,18 @@
+{
+    "LocalDependencies": [
+        "database.lua"
+    ],
+    "LuaDependencies": [
+        "jsonhelp",
+        "stringutil"
+    ],
+    "OtherDependencies": [
+        "athena.vmd"
+    ],
+    "timestamp": "1450819333",
+    "version_info": {
+        "build": 0,
+        "major": 6,
+        "minor": 0
+    }
+}

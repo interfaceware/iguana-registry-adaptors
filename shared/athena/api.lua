@@ -3,7 +3,7 @@
 -- api calls used for athena health
 ----------------------------------------------------------------------------------
 local AthenaSource = require 'athena.athena_source'
-store = require 'store'
+store = require 'athena.store'
 athena = {}
 token = {}
 api = {}
@@ -95,13 +95,7 @@ end
 local function handleErrors(Response, Err, Header, Extras)
    trace(Response)
    if Err ~= 200 then -- For all responses other thsn 200 OK
-      if Err == 401 then
-         --error("Token Invalid")
-         
-         token = GetAccessTokenViaHTTP('access_data', {auth = {username= config.username, password = config.password}})
-         trace(token)
-         return api.call(Extras.api, Extras.P, Extras.typeof)
-      elseif Err == 400 then     
+      if Err == 400 then     
          local Response = json.parse{data=Response}     
          error('API response error: ' .. Err .. ' ( ' .. Response.error .. ' ) returned for query call.', 6)  
          return

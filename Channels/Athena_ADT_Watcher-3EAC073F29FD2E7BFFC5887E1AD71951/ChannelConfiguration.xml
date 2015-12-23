@@ -7,8 +7,8 @@
    use_message_filter="false">
    <to_mapper
       guid="Athena_ADT_Watcher-To-Yl6jRFnukaaBv0"
-      commit_id="efb72266056213018dd0fc1284fd27e4bbd75cc3"
-      commit_comment="Dang null parts.">
+      commit_id="8802b87450f99c9635a788de22a65854ed5b5f7a"
+      commit_comment="Used structured table schema to hold the data and generate the CSV output.">
       <dequeue_list>
          <dequeue
             source_guid="00000000000000000000000000000000"

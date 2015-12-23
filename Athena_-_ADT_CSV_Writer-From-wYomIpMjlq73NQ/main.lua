@@ -5,6 +5,7 @@
 -- See http://help.interfaceware.com/forums/topic/athena-health-web-adapter
 require 'athena.api'
 config = require 'athena.config'
+map = require 'athena.mapPatient'
 
 csv = require 'csv.writer'
 
@@ -23,27 +24,26 @@ function main()
    -- For a real athena health instance you'd like want to get rid of this line since we
    -- are querying male patients who last name is "Smith"
    Patients = A.patients.patients.read{practiceid=PracticeId,sex='M', lastname='Smith'}
-
-       
+     
    -- In this case we push the patients into the queue and we'll process them downstream.
    if #Patients.patients == 0 then
       iguana.logInfo("We have no patients that have been updated.")
       return 
    end
    
-   -- Set up the headers.
-   local Headers = csv.formatHeaders(Patients.patients[1])
-   -- Then the body of the CSV export
-   local Data = ''
+   -- JSON is a little unstructured.  So it's helpful to map into a table schema, then output
+   -- into CSV
+   local T = db.tables{vmd='athena.vmd', name='Tables'}
    for i=1, #Patients.patients do
-      local Line = csv.formatLine(Patients.patients[i])
-      Data = Data..Line.."\n"
+      local Row = T.Patient[i]
+      map.Patient(Row, Patients.patients[i])
    end
-   -- Put all the content together
-   local Content = Headers .. '\n'..Data
+   trace(T)
+   local Content = csv.formatCsv(T.Patient)  
+   
    trace(Content) -- Have a look to see if it okay
    -- Make a temporary file - time stamp and great big GUID :-) adapt as you will.
-   local FileName = os.ts.date('%Y-%b-%d-%H:%M:%S')..util.guid(128)
+   local FileName = os.ts.date('%Y-%b-%d-%H:%M:%S')..util.guid(128)..'.csv'
    csv.writeFileAtomically(FileName, Content)
 end
 

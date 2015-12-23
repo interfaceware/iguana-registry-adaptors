@@ -4,11 +4,15 @@
         "athena.api",
         "athena.athena_source",
         "athena.config",
+        "athena.mapPatient",
         "athena.store",
-        "csv.writer"
+        "csv.writer",
+        "jsonhelp"
     ],
-    "OtherDependencies": [],
-    "timestamp": "1450902446",
+    "OtherDependencies": [
+        "athena.vmd"
+    ],
+    "timestamp": "1450908530",
     "version_info": {
         "build": 0,
         "major": 6,

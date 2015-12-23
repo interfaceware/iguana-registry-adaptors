@@ -9,8 +9,8 @@
    </to_channel>
    <from_mapper
       guid="Athena_-_ADT_CSV_Writer-From-wYomIpMjlq73NQ"
-      commit_id="12303f4a8d1184895eb2063e80d995e4a6f992e1"
-      commit_comment="First commit"
+      commit_id="c4565fd04896dc9ff4f7dbe8fe4b4a1180a8545d"
+      commit_comment="Export to csv"
       poll_time="10000">
    </from_mapper>
 </channel>

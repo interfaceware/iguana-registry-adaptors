@@ -100,6 +100,7 @@ local function handleErrors(Response, Err, Header, Extras)
          error('API response error: ' .. Err .. ' ( ' .. Response.error .. ' ) returned for query call.', 6)  
          return
       else 
+         iguana.logInfo(Response)
          local Response = json.parse{data=Response}
          error('API response error: ' .. Err .. ' ( ' .. Response.error .. ' '..Response.detailedmessage..' ) returned for query call.', 6)  
          return

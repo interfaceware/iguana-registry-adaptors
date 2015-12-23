@@ -44,6 +44,8 @@ function main()
    trace(Content) -- Have a look to see if it okay
    -- Make a temporary file - time stamp and great big GUID :-) adapt as you will.
    local FileName = os.ts.date('%Y-%b-%d-%H:%M:%S')..util.guid(128)..'.csv'
+   iguana.logInfo("Writing "..FileName)
    csv.writeFileAtomically(FileName, Content)
+   iguana.logInfo("Wrote:\n"..Content)
 end
 

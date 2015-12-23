@@ -1,5 +1,11 @@
 local csv = {}
 
+local function escape(V)
+   V = V:rxsub('\"', '""')
+   return V
+end
+
+-- This is for a JSON based file
 function csv.formatHeaders(R)
    local Headers = ''
    for K, V in pairs(R) do
@@ -11,11 +17,7 @@ function csv.formatHeaders(R)
    return Headers
 end
 
-local function escape(V)
-   V = V:rxsub('\"', '""')
-   return V
-end
-
+-- This is for a JSON based file
 function csv.formatLine(R)
    local Line = ''
    for K,V in pairs(R) do
@@ -27,6 +29,38 @@ function csv.formatLine(R)
    end
    Line = Line:sub(1, #Line-1)
    return Line
+end
+
+function csv.formatCsv(T)
+   if #T == 0 then 
+      return ''
+   end
+   local Headers = ''
+   for i=1, #T[1] do
+      Headers = Headers .. '"'..T[1][i]:nodeName()..'",'
+   end
+   -- Get rid of the trailing ,
+   Headers = Headers:sub(1, #Headers-1)
+   trace(Headers)
+   local Data = Headers.."\n"
+   for i=1, #T do
+      local Line = ''
+      local Row = T[i]
+      for j=1, #Row do 
+         local CType = Row[j]:nodeType()
+         if CType == 'string' then
+            Line = Line..'"'..escape(Row[j]:nodeValue())..'",'
+         else -- for datetime, integer, double
+            Line = Line..Row[j]:nodeValue()..","
+         end
+      end
+      trace(Line)
+      -- strip trailing ,
+      Line = Line:sub(1, #Line-1)
+      Data = Data..Line .."\n"
+   end
+   trace(Data)
+   return Data
 end
 
 -- We write to a temp file and rename it *after* we have finished writing the data.

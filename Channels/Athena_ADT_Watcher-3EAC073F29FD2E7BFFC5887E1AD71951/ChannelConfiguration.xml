@@ -7,8 +7,8 @@
    use_message_filter="false">
    <to_mapper
       guid="Athena_ADT_Watcher-To-Yl6jRFnukaaBv0"
-      commit_id="8802b87450f99c9635a788de22a65854ed5b5f7a"
-      commit_comment="Used structured table schema to hold the data and generate the CSV output.">
+      commit_id="7166f28f0b9dd1d160171f6cb37a88f04589f305"
+      commit_comment="Import Translators: ADT Watcher">
       <dequeue_list>
          <dequeue
             source_guid="00000000000000000000000000000000"
@@ -17,8 +17,8 @@
    </to_mapper>
    <from_mapper
       guid="Athena_ADT_Watcher-From-sdumDmnDjZOMXz"
-      commit_id="828145129073197fa4188a1796820afbf5d9befb"
-      commit_comment="Extra blank line."
+      commit_id="7166f28f0b9dd1d160171f6cb37a88f04589f305"
+      commit_comment="Import Translators: ADT Watcher"
       poll_time="100000">
    </from_mapper>
 </channel>

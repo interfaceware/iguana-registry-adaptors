@@ -11,17 +11,20 @@ PracticeId = 195900
 function main() 
    local A = athena.connect{username=config.username, password=config.password, cache=true}
    
+   trace(token.access_token)
+   trace(_G)
+   
    local Patients
    -- If we had a real instance of Athena Health then we would register this practice ID
    -- A.patients.patients.changed.subscription.add{practiceid=PracticeId}
    -- Then the patients.changed 
    Patients = A.patients.patients.changed.read{practiceid=195900,leaveunprocessed=iguana.isTest()}
- 
+
    -- For a real athena health instance you'd like want to get rid of this line since we
    -- are querying male patients who last name is "Smith"
-   Patients = A.patients.patients.read{practiceid=PracticeId,sex='M', lastname='Smith'}
-
-       
+   --Patients = A.patients.patients.read{practiceid=PracticeId,sex='M', lastn--ame='Smith'}
+   --Patients = A.administrative.ping.read{practiceid=289301}
+   local y = A.chart.chart.configuration.medicalhistory.read{practiceid=PracticeId}
    -- In this case we push the patients into the queue and we'll process them downstream.
    for i=1, #Patients.patients do  
       queue.push{data=json.serialize{data=Patients.patients[i]}}

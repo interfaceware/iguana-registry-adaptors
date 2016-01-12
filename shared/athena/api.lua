@@ -93,14 +93,13 @@ local function ApiCall(UserParams, Data, typeof)
 end
 
 local function handleErrors(Response, Err, Header, Extras)
-   trace(Response)
+   iguana.logInfo(Response)
    if Err ~= 200 then -- For all responses other thsn 200 OK
       if Err == 400 then     
          local Response = json.parse{data=Response}     
          error('API response error: ' .. Err .. ' ( ' .. Response.error .. ' ) returned for query call.', 6)  
          return
       else 
-         iguana.logInfo(Response)
          local Response = json.parse{data=Response}
          error('API response error: ' .. Err .. ' ( ' .. Response.error .. ' '..Response.detailedmessage..' ) returned for query call.', 6)  
          return

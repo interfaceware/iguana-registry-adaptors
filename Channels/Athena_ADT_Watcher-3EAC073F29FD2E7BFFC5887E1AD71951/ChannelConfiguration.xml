@@ -7,8 +7,8 @@
    use_message_filter="false">
    <to_mapper
       guid="Athena_ADT_Watcher-To-Yl6jRFnukaaBv0"
-      commit_id="7166f28f0b9dd1d160171f6cb37a88f04589f305"
-      commit_comment="Import Translators: ADT Watcher">
+      commit_id="fe6e449d296c4c04c3f8f58f3df295f922528245"
+      commit_comment="Corrected merge conflict.">
       <dequeue_list>
          <dequeue
             source_guid="00000000000000000000000000000000"
@@ -17,8 +17,8 @@
    </to_mapper>
    <from_mapper
       guid="Athena_ADT_Watcher-From-sdumDmnDjZOMXz"
-      commit_id="7166f28f0b9dd1d160171f6cb37a88f04589f305"
-      commit_comment="Import Translators: ADT Watcher"
+      commit_id="05adc4dd271873faa9e651c59c029e971ed159db"
+      commit_comment="Few fixes."
       poll_time="100000">
    </from_mapper>
 </channel>

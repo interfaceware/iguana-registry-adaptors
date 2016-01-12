@@ -9,7 +9,6 @@ map = require 'athena.mapPatient'
 --
 -- This can edited using a windows program called Chameleon that comes with Iguana.
 
-
 function GetDatabase()
    return db.connect{api=db.SQLITE, name='patient_info'}
 end

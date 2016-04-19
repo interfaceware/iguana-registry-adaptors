@@ -1,0 +1,18 @@
+{
+    "LocalDependencies": [
+        "salesforce_objects.lua"
+    ],
+    "LuaDependencies": [
+        "encrypt.password",
+        "net.http.cache",
+        "salesforce",
+        "store2"
+    ],
+    "OtherDependencies": [],
+    "timestamp": "1461100325",
+    "version_info": {
+        "build": 0,
+        "major": 6,
+        "minor": 0
+    }
+}

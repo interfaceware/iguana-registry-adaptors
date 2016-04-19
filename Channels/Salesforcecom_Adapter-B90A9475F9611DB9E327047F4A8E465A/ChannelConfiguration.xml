@@ -1,0 +1,15 @@
+<channel
+   name="Salesforce.com Adapter"
+   guid="B90A9475F9611DB9E327047F4A8E465A"
+   description="This is a salesforce.com adapter that we use internally within our own infra-structure.&#xD;&#xA;&#xD;&#xA;See http://help.interfaceware.com/kb/salesforce-com&#xD;&#xA;&#xD;&#xA;This version is improved compared to the original."
+   start_automatically="false"
+   logging_level="1"
+   use_message_filter="false">
+   <to_channel>
+   </to_channel>
+   <from_http
+      type="mapper"
+      guid="Salesforcecom_Adapter-FromHTTP-TtK4KcYVwCIPiu"
+      commit_id="bc8aca709fcc35f8eb11bc790d64a1e1b2a68ae2"
+      commit_comment="Separated object definitions from main module."/>
+</channel>

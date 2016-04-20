@@ -25,7 +25,7 @@ function main(Data)
    local C = salesforce.connect{username='richard.wang1@interfaceware.com', objects=salesforce_objects, 
       password='Iguana2016', consumer_key=ConsumerKey,  consumer_secret='3918946598378214139'}
   
-   -- We use this method to generate a defintion for a given object type
+   -- We use this method to generate a definition for a given object type
    -- see the salesforce_objects.lua file.
    C:apiDefinition("Account")
    

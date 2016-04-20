@@ -10,6 +10,15 @@
    <from_http
       type="mapper"
       guid="Salesforcecom_Adapter-FromHTTP-TtK4KcYVwCIPiu"
-      commit_id="bc8aca709fcc35f8eb11bc790d64a1e1b2a68ae2"
-      commit_comment="Separated object definitions from main module."/>
+      commit_id="a09d3a4919eec5ef31ac0ad8686710bad320fc96"
+      commit_comment="Typo and got rid of global symbols."/>
+   <message_filter
+      filter_after_logging="false"
+      log_pre_post_filter_message="true"
+      filter_vmd_path=""
+      transformation_mode="0"
+      scripted_transformation_configuration_name="default"
+      error_handling="0"
+      use_translator_filter="true">
+   </message_filter>
 </channel>

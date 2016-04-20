@@ -1,6 +1,6 @@
 local salesforce = {}
 
-store2 = require 'store2'
+local store2 = require 'store2'
 
 require 'net.http.cache'
 
@@ -199,7 +199,7 @@ end
 
 local helpinfo = {}
 
-HelpConnect = [[{"SeeAlso":[{"Title":"Salesforce","Link":"http://www.salesforce.com"}],
+local HelpConnect = [[{"SeeAlso":[{"Title":"Salesforce","Link":"http://www.salesforce.com"}],
                 "Returns":[{"Desc":"The salesforce.com website."}],
                 "Title":"salesforce.connect",
          "Parameters":[{"username":{"Desc":"User ID to login with."}},

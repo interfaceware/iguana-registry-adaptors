@@ -11,7 +11,8 @@
       type="mapper"
       guid="Salesforcecom_Adapter-FromHTTP-TtK4KcYVwCIPiu"
       commit_id="a09d3a4919eec5ef31ac0ad8686710bad320fc96"
-      commit_comment="Typo and got rid of global symbols."/>
+      commit_comment="Typo and got rid of global symbols."
+      mapper_url_path="salesforce/"/>
    <message_filter
       filter_after_logging="false"
       log_pre_post_filter_message="true"

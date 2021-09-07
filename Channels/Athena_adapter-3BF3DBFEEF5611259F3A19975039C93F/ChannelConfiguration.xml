@@ -1,23 +1,23 @@
 <channel
    name="Athena adapter"
    guid="3BF3DBFEEF5611259F3A19975039C93F"
-   description="This channel shows an example Athena Health web service adapter:&#xD;&#xA;&#xD;&#xA;http://help.interfaceware.com/forums/topic/athena-health-web-adapter&#xD;&#xA;&#xD;&#xA;"
-   start_automatically="true"
+   description="This channel shows an example Athena Health web service adapter: http://help.interfaceware.com/forums/topic/athena-health-web-adapter"
+   start_automatically="false"
    logging_level="1"
    use_message_filter="false">
    <to_mapper
       guid="Athena_adapter-To-46fdP7um8qk0wG"
-      commit_id="afbb9d22d42bd4511fcd5622e31c58dc6db1aa17"
-      commit_comment="Remove store module.">
+      commit_id="b56d45c4a81a6523ab158c53fd477aa254265f6d"
+      commit_comment="deleted lines 51/52">
       <dequeue_list>
          <dequeue
-            source_guid="00000000000000000000000000000000"
-            dequeue_guid="D5C59159FDBA973C2FE08438220AA401"/>
+            source_name="self"
+            dequeue_guid="8C4F303DA6C2D73A36F945312C4EE64B"/>
       </dequeue_list>
    </to_mapper>
    <from_llp_listener
-      ack_vmd_path="/Applications/iNTERFACEWARE-Iguana.app/Contents/iNTERFACEWARE-Iguana/autoack.vmd"
-      port="7020"
+      ack_vmd_path="C:/Program Files/iNTERFACEWARE/Iguana/autoack.vmd"
+      port="5345"
       connection_timeout="30"
       unlimited_connection_timeout="false"
       ack_style="fast"/>

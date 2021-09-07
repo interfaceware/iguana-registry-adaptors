@@ -2,6 +2,10 @@
 -- a password that you don't want to appear in the lua code that
 -- is saved in a repository.
 
+-- The code uses AES encryption https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
+
+-- http://help.interfaceware.com/v6/encrypt-password-in-file
+
 local config = {}
 
 local XmlSaveFragment=[[
@@ -33,7 +37,7 @@ function config.load(T)
    end
    local X = xml.parse{data=Data}
    local Salt = X.config.salt:S()
-   local TotalKey = (Salt..Key..Key..Key):sub(1,32)
+   local TotalKey = filter.base64.enc(crypto.digest{data=Key .. Salt,algorithm='SHA512'}):sub(1,32)
    local Password = X.config.password:S()
    Password = filter.base64.dec(Password)
    Password = filter.aes.dec{data=Password, key=TotalKey}
@@ -57,60 +61,81 @@ local XmlSaveFragment=[[
 ]]
 
 function config.save(T)
-   local Config = T.config
+   local Config   = T.config
    local Password = T.password
-   local Key = T.key
+   local Key      = T.key
+   local Salt     = util.guid(128)
+   local TotalKey = filter.base64.enc(crypto.digest{data=Key .. Salt,algorithm='SHA512'}):sub(1,32)
+   local X        = xml.parse{data=XmlSaveFragment}
    
-   local X = xml.parse{data=XmlSaveFragment}
-   local Salt = util.guid(128)
-   X.config.salt = Salt
-   local TotalKey = (Salt..Key..Key..Key):sub(1,32)
-   Password = Password
    local EncryptedPassword = filter.aes.enc{data=Password, key=TotalKey}
    EncryptedPassword = filter.base64.enc(EncryptedPassword)
+   
+   X.config.salt = Salt
    X.config.password = EncryptedPassword
+   
    local Content = Comment..X:S()
    SaveFile(Config, Content)
 end
 
 local LoadHelp=[[{
-   "Returns": [{"Desc": "Returns the decrypted password in a string."}],
+   "Returns": [{"Desc": "The decrypted password <u>string</u>."}],
+   "SeeAlso": [
+      {
+         "Title": "Source code for the encrypt.password.lua module on github",
+         "Link": "https://github.com/interfaceware/iguana-tools/blob/master/shared/encrypt/password.lua"
+      },
+      {
+         "Title": "Encrypt Password in File",
+         "Link": "http://help.interfaceware.com/v6/encrypt-password-in-file"
+      }
+   ],
    "Title": "config.load",
    "Parameters": [
-      { "config": {"Desc": "Name of the configuration file to load (without the extension)."}},
-      { "key": { "Desc": "Key used to de-encrypt the password in the file."}}],
+      { "config": {"Desc": "Name of the configuration file to load <u>string</u>."}},
+      { "key": { "Desc": "Key used to decrypt the password in the file <u>string</u>."}}],
    "ParameterTable": true,
-   "Usage": "config.load{config='acmeapp', key='skKddd223kdS'}",
+   "Usage": "config.load{config=&lt;filename&gt;, key=&lt;decryption key&gt;}",
    "Examples": [
       "--Save the config file - but do not leave this line in the script
-config.save{password='my password',config='acmeapp', key='skKddd223kdS'}
--- And then we can load it
+config.save{password='my password',config='acmeapp', key='skKddd223kdS'}<br>
+-- Load the password previously saved to the configuration file
 local Password = config.load{config='acmeapp', key='skKddd223kdS'}"
    ],
-   "Desc": "This function loads an encrpyted password from a file in the configuration directory of Iguana that was saved using config.save."
+   "Desc": "This function loads an encrypted password from the specified file in the configuration directory of Iguana that was saved using the config.save{} function"
 }]]
 
 help.set{input_function=config.load, help_data=json.parse{data=LoadHelp}}
 
 local SaveHelp=[[{
    "Returns": [],
-   "Title": "config.load",
+   "SeeAlso": [
+      {
+         "Title": "Source code for the encrypt.password.lua module on github",
+         "Link": "https://github.com/interfaceware/iguana-tools/blob/master/shared/encrypt/password.lua"
+      },
+      {
+         "Title": "Encrypt Password in File",
+         "Link": "http://help.interfaceware.com/v6/encrypt-password-in-file"
+      }
+   ],
+   "Title": "config.save",
    "Parameters": [
-      { "config": {"Desc": "Name of the configuration file to load (without the extension)."}},
-      { "password": { "Desc": "The password to save in the file."}},
-      { "key" : { "Desc": "Key used to encrypt the password in the file."}}],
+      { "password": { "Desc": "The password to save in the file <u>string</u>."}},
+      { "config": {"Desc": "Name of the configuration file to save to <u>string</u>."}},
+      { "key" : { "Desc": "Key used to encrypt the saved password <u>string</u>."}}],
    "ParameterTable": true,
-   "Usage": "config.save{password='my secret password', config='acmeapp', key='skKddd223kdS'}",
+   "Usage": "config.save{password=&lt;password&gt;, config=&lt;filename&gt;, key=&lt;encryption key&gt;}",
    "Examples": [
       "--Save the config file - but do not leave this line in the script
-config.save{password='my password',config='acmeapp', key='skKddd223kdS'}
--- And then we can load it
+config.save{password='my password',config='acmeapp', key='skKddd223kdS'}<br>
+-- Load the password previously saved to the configuration file
 local Password = config.load{config='acmeapp', key='skKddd223kdS'}"
    ],
-   "Desc": "This function encrypts and saves a password in a file located in the configuration directory of Iguana."
-}]]
+   "Desc": "This function encrypts and saves a password to the specified file located in the configuration directory of Iguana."
+}
+]]
 
 help.set{input_function=config.save, help_data=json.parse{data=SaveHelp}}
-
 
 return config

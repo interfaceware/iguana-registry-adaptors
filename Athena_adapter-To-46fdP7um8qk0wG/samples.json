@@ -1,3 +1,8 @@
 {
-    "Samples": []
+    "Samples": [
+        {
+            "Message": "{\r   \"DepartmentID\": 1,\r   \"PracticeID\": 1128700,\r   \"PatientFirstName\": \"Demo\",\r   \"PatientLastName\": \"DemoNew\",\r   \"DateOfBirth\": \"01/01/2010\",\r   \"email\" : \"abc@gmail.com\"\r}\r",
+            "Name": "Message 1"
+        }
+    ]
 }

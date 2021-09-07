@@ -1,13 +1,22 @@
 {
-    "LocalDependencies": [],
+    "LocalDependencies": [
+        "athena/api.lua",
+        "athena/athena_source.lua",
+        "athena/util.lua",
+        "resources/appointments.lua",
+        "resources/chart.lua",
+        "resources/encounter.lua",
+        "resources/patients.lua",
+        "resources/practiceconfiguration.lua"
+    ],
     "LuaDependencies": [
-        "athena.api",
-        "athena.athena_source",
-        "athena.config",
-        "athena.store"
+        "encrypt.password",
+        "net.http.cache",
+        "retry",
+        "store2"
     ],
     "OtherDependencies": [],
-    "timestamp": "1450819498",
+    "timestamp": "1631029134",
     "version_info": {
         "build": 0,
         "major": 6,
